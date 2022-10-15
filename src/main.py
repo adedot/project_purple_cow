@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
+from fastapi.encoders import jsonable_encoder
 
 app = FastAPI(
     title="Purple Cow Service",
@@ -6,29 +8,27 @@ app = FastAPI(
     version="0.0.1"
 )
 
-items = [{"id": 0, "name": "bike"}]
+items = { 1: {"name": "bike"}}
+
+class Item(BaseModel):
+    name: str
 
 @app.get("/", summary="Checks if API is running", description="returns a message to make sure service is up and running")
 def read_root():
     return {"Purple Cow Service": "Running"}
 
 # get 
-@app.get("/items", summary="Checks if API is running", description="returns a message to make sure service is up and running")
-def read_root():
+@app.get("/items")
+def get_items():
     return items
 
-
-# set/post
-@app.post(
-    "/items", summary="Write a file to a s3 bucket",
-    description="Write a file to a s3 bucket"
-)
-def create_item():
-    pass
-
+@app.put("/items/{item_id}", response_model=Item)
+async def update_item(item_id: int, item: Item):
+    update_item_encoded = jsonable_encoder(item)
+    items[item_id] = update_item_encoded
+    return update_item_encoded
+    
 # delete 
-@app.delete('/items/{item_id}', summary="Write a file to a s3 bucket",
-    description="Write a file to a s3 bucket"
-)
+@app.delete('/items/{item_id}')
 def delete_item(item_id: int):
-    items.pop(id)
+    del items[item_id]
