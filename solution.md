@@ -16,6 +16,9 @@
 2. docker run -it -p 3000:3000  project_purple_cow:latest
 
 # End points
+
+/docs is swagger documentation
+
 GET /items
 
 ex: 
